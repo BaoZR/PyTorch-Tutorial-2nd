@@ -5,6 +5,7 @@
 @date       : 2021-12-28
 @brief      : 新冠肺炎X光分类 demo，极简代码实现深度学习模型训练，为后续核心模块讲解，章节内容讲解奠定框架性基础。
 """
+import argparse
 import os
 import torch
 import torch.nn as nn
@@ -15,7 +16,9 @@ import torchvision.transforms as transforms
 from PIL import Image
 
 
-def main():
+def main(
+        source=""
+):
     # 思考：如何实现你的模型训练？第一步干什么？第二步干什么？...第n步...
     # step 1/4 : 数据模块：构建dataset, dataloader，实现对硬盘中数据的读取及设定预处理方法
     # step 2/4 : 模型模块：构建神经网络，用于后续训练
@@ -68,9 +71,10 @@ def main():
 
             self.img_info = [(os.path.join(self.root_dir, i.split()[0]), int(i.split()[2]))
                              for i in txt_data]
+
     # you can download the datasets from
     # https://pan.baidu.com/s/18BsxploWR3pbybFtNsw5fA  code：pyto
-    root_dir = r"E:\pytorch-tutorial-2nd\data\datasets\covid-19-demo"  # path to datasets——covid-19-demo
+    root_dir = str(source)  # path to datasets——covid-19-demo
     img_dir = os.path.join(root_dir, "imgs")
     path_txt_train = os.path.join(root_dir, "labels", "train.txt")
     path_txt_valid = os.path.join(root_dir, "labels", "valid.txt")
@@ -103,7 +107,7 @@ def main():
     optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
     scheduler = optim.lr_scheduler.StepLR(optimizer, gamma=0.1, step_size=50)
     # step 4/4 : 迭代模块
-    for epoch in range(100):
+    for epoch in range(1000):
         # 训练集训练
         model.train()
         for data, labels in train_loader:
@@ -146,6 +150,13 @@ def main():
         scheduler.step()
 
 
-if __name__ == "__main__":
-    main()
+def parse_opt():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', type=str)
+    opt = parser.parse_args()
+    return opt
 
+
+if __name__ == "__main__":
+    opt = parse_opt()
+    main(**vars(opt))
